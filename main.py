@@ -1,27 +1,35 @@
-from aiogram import Bot, Dispatcher, types
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-from aiogram.utils import executor
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-# 🔑 BotFather'dan olgan tokeningni yoz
 TOKEN = "8444313843:AAG_7dMIvKGNTajB2svz058y-Iie9bU08Ds"
 
-bot = Bot(token=TOKEN)
-dp = Dispatcher(bot)
-
 # /start handler
-@dp.message_handler(commands=['start'])
-async def start(message: types.Message):
-    # Web App tugma yaratish
-    webapp_info = WebAppInfo(url="https://grapher-eight.vercel.app/")
-    button = InlineKeyboardButton(text="Open Grapher App", web_app=webapp_info)
-    keyboard = InlineKeyboardMarkup().add(button)
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    # Foydalanuvchiga xabar yuborish
-    await message.answer(
+    keyboard = [
+        [
+            InlineKeyboardButton(
+                "Open Grapher App",
+                web_app=WebAppInfo(url="https://grapher-eight.vercel.app/")
+            )
+        ]
+    ]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    await update.message.reply_text(
         "Hello! Click the button to open Grapher Web App:",
-        reply_markup=keyboard
+        reply_markup=reply_markup
     )
 
-if __name__ == "__main__":
+# Botni ishga tushirish
+def main():
+    app = ApplicationBuilder().token(TOKEN).build()
+
+    app.add_handler(CommandHandler("start", start))
+
     print("Bot is running...")
-    executor.start_polling(dp, skip_updates=True)
+    app.run_polling()
+
+if __name__ == "__main__":
+    main()
